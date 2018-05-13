@@ -71,8 +71,9 @@
     <Reference Include="Remotion.Interfaces, Version=1.13.52.2, Culture=neutral, PublicKeyToken=0669cf0452175907, processorArchitecture=MSIL">
       <HintPath>..\packages\LinqToExcel.1.11.0\lib\Remotion.Interfaces.dll</HintPath>
     </Reference>
-    <Reference Include="Sitecore.Client">
-      <HintPath>..\..\..\..\Installed_Sitecore_instances\sc82u6\Website\bin\Sitecore.Client.dll</HintPath>
+    <Reference Include="Sitecore.Client, Version=8.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SC.Sitecore.Client.8.1.1\lib\Sitecore.Client.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Web.DynamicData" />
