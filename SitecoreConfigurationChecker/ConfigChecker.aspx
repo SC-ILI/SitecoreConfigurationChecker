@@ -112,6 +112,17 @@
             font-weight:bold;
             padding-left:10px;
         }
+        #manualBlock{
+            padding:15px 0px 0px 0px;
+        }
+        #manualPathContainer{
+            width:800px;
+            margin-left: 10px;
+        }
+        .errors{
+            color:red;
+            font-weight: bold;
+        }
     </style>
     <form id="form1" runat="server">
         <div class="main">
@@ -123,6 +134,17 @@
           </div>
             <div class="content">
                 <div class ="controls">
+                  <div class="switchMode controlSection">
+                    <div class="controlTitle">
+                      <p>Switch to the "Manual" mode in order to manualy choose the folder with Sitecore configration</p>
+                    </div>
+                    <div class="control">
+                        <asp:CheckBox runat="server" Text="Switch to the 'Manual' mode" ID="manualSwitcher" />
+                        <div class="hidden" id="manualBlock" runat="server">
+                          <label>Paste the absolute path to the Sitecore "WebSite" folder here: </label><input type="text" runat="server" id="manualPathContainer" />
+                        </div>
+                    </div>
+                  </div>
                   <div class="sprdsheetPicker controlSection">
                     <div class="controlTitle">
                         <p>Please select the needed spreadsheet that lists of all the configuration files that you must enable or disable.</p>
@@ -172,6 +194,16 @@
                     <asp:Button Text="Check" Enabled="false" ID="checkbut" CssClass="checkbutton" runat="server" OnClick="CheckConfig_Click" />
                 </div>
                </div>
+                <div class="hidden" id="errors" runat="server">
+                    <div class="resultHeader">
+                        <div class="header title">
+                            ERROR!!!!
+                        </div>
+                        <div id="errorsContent" runat="server">
+
+                        </div>
+                    </div>
+                </div>
                 <div class="resultContent hidden" id="results" runat="server">
                     <div class="resultHeader">
                         <div class="header title">
@@ -192,6 +224,15 @@
         </div>
         <script>
 
+            document.getElementById('manualSwitcher').onchange = function (event) {
+            if (event.currentTarget.checked == true) {
+                document.getElementById('manualBlock').setAttribute("class", "shown");
+                }
+            else {
+                document.getElementById('manualBlock').setAttribute("class", "hidden");
+            }
+           }
+
             document.getElementById('searchProvider').onchange = function (event) {
                 if (event.currentTarget.value == "Azure is used") {
                     document.getElementById('searchNotif').setAttribute("class", "comment");
@@ -202,7 +243,6 @@
             }
 
             document.getElementById('sprdsheet').onchange = function (event) {
-                console.log("This " + event.currentTarget.value);
                 if (event.currentTarget.value != "") {
                     document.getElementById('checkbut').removeAttribute("disabled");
                 }

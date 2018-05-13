@@ -15,7 +15,6 @@ namespace SitecoreConfigurationChecker
 {
     public partial class ConfigChecker : Sitecore.sitecore.admin.AdminPage
     {
-        //string path = String.Empty;
         private List<string> skippedConfigs = new List<string>();
 
         enum serverType
@@ -31,12 +30,19 @@ namespace SitecoreConfigurationChecker
         {
 
         }
-           
+        protected void ShowErrors(string errorText)
+        {
+            errorsContent.InnerHtml += errorText;
+            errors.Attributes["class"] = "resultContent shown errors";
+            errors.Focus();
+        }
         protected void CheckConfig_Click(object sender, EventArgs e)
         {
             skippedConfigs.Clear();
             resultContent.Controls.Clear();
             skippedList.Controls.Clear();
+            errors.Attributes["class"] = "hidden";
+
             string role = serverRole.Value;
             int roleColumn = 0;
 
@@ -69,16 +75,32 @@ namespace SitecoreConfigurationChecker
                     }
             }
 
+            string currentAppPath = manualSwitcher.Checked ? manualPathContainer.Value : Server.MapPath("~");
+            if(!Directory.Exists(currentAppPath + "\\App_Config"))
+            {
+                string errorText = String.Format("The provided directory: {0} , does not contain the 'App_Config' folder. Please ensure that you have set the 'Manual' path correctly or the current page has been installed in Sitecore", currentAppPath);
+                ShowErrors(errorText);
+                return;
+            }
             string searchProv = searchProvider.Value;
             DataSet dtSet = new DataSet();
             Dictionary<string, string> missconsistens = new Dictionary<string, string>();
             List<string> processedConfigs = new List<string>();
             IExcelDataReader excelReader = null;
-            excelReader = ExcelReaderFactory.CreateOpenXmlReader(sprdsheet.PostedFile.InputStream);
+            try
+            {
+                excelReader = ExcelReaderFactory.CreateOpenXmlReader(sprdsheet.PostedFile.InputStream);
+            }
+            catch (ExcelDataReader.Exceptions.HeaderException ex)
+            {
+                string errorText = String.Format("The provided spreadsheet file is not an Excel table!!! \n \r StackTrace: {0}", ex.StackTrace);
+                ShowErrors(errorText);
+                return;
+            }
 
             if (excelReader != null)
             {
-                
+
                 dtSet = excelReader.AsDataSet();
                 System.Data.DataTable table = dtSet.Tables[0];
 
@@ -86,11 +108,9 @@ namespace SitecoreConfigurationChecker
                 {
                     if (String.IsNullOrEmpty(table.Rows[i][1].ToString())) continue;
                     if (table.Rows[i][3].ToString() == "Web.config" || table.Rows[i][3].ToString() == "Web.config.Oracle") continue;
-                    // if ((String.IsNullOrEmpty(table.Rows[i][5].ToString()) || table.Rows[i][5].ToString() == searchProv ||searchProv == "Lucene is used" && table.Rows[i][5].ToString() == "Lucene" || searchProv == "Solr is used" && table.Rows[i][5].ToString() == "Solr" || table.Rows[i][5].ToString() == "Base"))
-                    //{
+
                     if (roleColumn != 0)
                     {
-                        string currentAppPath = Server.MapPath("~");
                         string configPath = table.Rows[i][2].ToString().Replace(@"\website", currentAppPath) + @"\" + table.Rows[i][3].ToString().Substring(0, table.Rows[i][3].ToString().IndexOf(".config") + 7).Replace(" ", String.Empty);
                         bool configShouldBeEnabled = table.Rows[i][roleColumn].ToString() == "Enable";
                         bool isConfigExists = File.Exists(configPath);
@@ -102,27 +122,39 @@ namespace SitecoreConfigurationChecker
                         }
                         processedConfigs.Add(table.Rows[i][2].ToString() + table.Rows[i][3].ToString().Substring(0, table.Rows[i][3].ToString().IndexOf(".config") + 7).Replace(" ", String.Empty));
                         bool isSelectedProvider = table.Rows[i][5].ToString() == searchProv || searchProv == "Lucene is used" && table.Rows[i][5].ToString() == "Lucene" || searchProv == "Solr is used" && table.Rows[i][5].ToString() == "Solr" || table.Rows[i][5].ToString() == "Base" || String.IsNullOrEmpty(table.Rows[i][5].ToString()) ? true : false;
-                            try
+                        try
+                        {
+                            if (isSelectedProvider && isConfigExists && configShouldBeEnabled == false || !isSelectedProvider && isConfigExists && configShouldBeEnabled == true)
                             {
-                                if (isSelectedProvider && isConfigExists && configShouldBeEnabled == false || !isSelectedProvider && isConfigExists && configShouldBeEnabled == true)
-                                {
-                                    missconsistens.Add(configPath, "Should be disabled");
-                                }
-
-                                if (isSelectedProvider && !isConfigExists && configShouldBeEnabled)
-                                {
-                                    missconsistens.Add(configPath, "Should be Enabled");
-                                }
+                                missconsistens.Add(configPath, "Should be disabled");
                             }
-                            catch (ArgumentException)
+
+                            if (isSelectedProvider && !isConfigExists && configShouldBeEnabled)
                             {
-                                skippedConfigs.Add(table.Rows[i][2].ToString().Replace(@"\website", currentAppPath) + @"\" + table.Rows[i][3].ToString());
+                                missconsistens.Add(configPath, "Should be Enabled");
                             }
                         }
-                    //}
+                        catch (ArgumentException)
+                        {
+                            skippedConfigs.Add(table.Rows[i][2].ToString().Replace(@"\website", currentAppPath) + @"\" + table.Rows[i][3].ToString());
+                        }
+                        catch (Exception ex)
+                        {
+                            string errorText = String.Format("The '{1}' error occurred during defining the misconsitensies. Check the StackTrace for detais: \n {0}", ex.StackTrace, ex.Message);
+                            ShowErrors(errorText);
+                            return;
+                        }
+                    }
                 }
+                excelReader.Close();
             }
-            excelReader.Close();
+            else
+            {
+                string errorText = "Was not able to create a ExcelReader. It looks like the Excel file is corrupted or has the wrong format";
+                ShowErrors(errorText);
+                return;
+            }
+          
 
             if(missconsistens.Count == 0)
             {
@@ -153,7 +185,11 @@ namespace SitecoreConfigurationChecker
             }
             results.Attributes["class"] = "resultContent";
             sprdsheet.Attributes["value"] = "";
-          
+            if (manualSwitcher.Checked)
+            {
+                manualBlock.Attributes["class"] = "shown";
+            }
+            results.Focus();
         }
     }
 }
