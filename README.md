@@ -6,11 +6,24 @@ In theory, this tool should be compatible with Sitecore starting from the 8.1.1 
 For now, the tool was tested with Sitecore 8.2.5 and 8.2.6.
 
 # Installation
-While the SitecoreConfigurationTool is under testing, to install the tool please perform the following steps:
+
+Before building the project please ensure that the "Public Sitecore Nuget": https://sitecore.myget.org/F/sc-packages/api/v3/index.json is configured.
+
+While the SitecoreConfigurationTool is under testing, there are two possible options to install the tool:
+
+Manually:
 
 1. Clone the project and build it.
 2. Copy the "ExcelDataReader.DataSet.dll", "ExcelDataReader.dll" and "SitecoreConfigurationChecker.dll" files to the "bin" folder of your Sitecore Instance.
 3. Copy the "ConfigChecker.aspx" file to the "\sitecore\admin" folder of your Sitecore instance.
+
+Using the "Publish" feature of the Visual Studio:
+
+1. Clone the project and open it in Visual Studio.
+2. Click Build --> Publish SitecoreConfigurationChecker
+3. Select "Folder"
+4. Click "Browse" and choose the "Website" folder of your Sitecore solution.
+5. Click "Publish" 
 
 # How to use the tool
 
