@@ -151,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -159,15 +160,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ConfigChecker.aspx" />
+    <Content Include="sitecore\admin\ConfigChecker.aspx" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigChecker.aspx.cs">
+    <Compile Include="sitecore\admin\ConfigChecker.aspx.cs">
       <DependentUpon>ConfigChecker.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
-    <Compile Include="ConfigChecker.aspx.designer.cs">
+    <Compile Include="sitecore\admin\ConfigChecker.aspx.designer.cs">
       <DependentUpon>ConfigChecker.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
