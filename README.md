@@ -2,8 +2,7 @@
 A Sitecore page which provides an opportunity to check the current Sitecore instance configuration according to the provided spreadsheet
 
 # Compatibility
-In theory, this tool should be compatible with Sitecore starting from the 8.1.1 version till the 8.2.6 version.
-For now, the tool was tested with Sitecore 8.2.5 and 8.2.6.
+Compatible with Sitecore starting from the 8.1.1 version till the 8.2.6 version.
 
 # Installation
 
